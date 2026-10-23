@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 12 Clinic</title>
+<title>Lab 11 Clinic</title>
 <style>
   :root {
     --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1f; --muted: #5f5f66;
@@ -51,7 +51,7 @@
 <body>
 <main id="app"></main>
 <script>
-// Lab 12, 3807200 Psychological Testing, Mon 2026-10-26.
+// Lab 11 (Week 12 files), 3807200 Psychological Testing, Mon 2026-10-26.
 // Source of the card text: Lab Materials/Week 12/Week 12 - Role Cards.md (keep the two in step).
 const RULES = [
   ["Tell freely", "give these to any question about the problem."],
@@ -171,7 +171,7 @@ function round(role) { return (person === 1) === (role === "patient") ? 1 : 2; }
 
 function render() {
   if (!person) {
-    app.innerHTML = '<span class="tag plain">Lab 12</span><h1>Scan your own code</h1><p>Use the QR code for Person 1 or Person 2 on your lab sheet.</p>';
+    app.innerHTML = '<span class="tag plain">Lab 11</span><h1>Scan your own code</h1><p>Use the QR code for Person 1 or Person 2 on your lab sheet.</p>';
     return;
   }
   const kind = order[state.screen];
@@ -179,7 +179,7 @@ function render() {
   if (kind === "intro") {
     const first = order[1] === "patient" ? "the patient" : "the clinician";
     const second = order[2] === "patient" ? "the patient" : "the clinician";
-    app.innerHTML = `<span class="tag plain">Lab 12 · The Interview</span>
+    app.innerHTML = `<span class="tag plain">Lab 11 · The Interview</span>
       <h1>You are Person ${person}</h1>
       <div class="box"><p><b>First half:</b> you are ${first}.</p><p style="margin:0"><b>After halftime:</b> you are ${second}.</p></div>
       <p>Keep your screen to yourself. Person ${other} has a different screen.</p>
@@ -224,7 +224,7 @@ function render() {
       <button id="next">${last ? "Finish" : "Next: be the patient"}</button>`;
     document.getElementById("next").onclick = () => go(state.screen + 1);
   } else {
-    app.innerHTML = `<span class="tag plain">Lab 12</span><h1>Done</h1>
+    app.innerHTML = `<span class="tag plain">Lab 11</span><h1>Done</h1>
       <p>Go to <b>Part 3</b> on your lab sheet and answer it with your partner. Then submit the sheet.</p>`;
   }
 }
