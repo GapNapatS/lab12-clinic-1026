@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 12 Clinic</title>
+<style>
+  :root {
+    --bg: #f7f6f2; --card: #ffffff; --ink: #1d1d1f; --muted: #5f5f66;
+    --line: #dcdad3; --accent: #1f5f8b; --accent-ink: #ffffff;
+    --patient: #8a3b12; --patient-bg: #fbeee6; --clin: #1f5f8b; --clin-bg: #e7f0f7;
+    --warn-bg: #fff6d6; --warn-line: #e3c75a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161618; --card: #222226; --ink: #f1f1f3; --muted: #a8a8b0;
+      --line: #3a3a40; --accent: #5aa7dc; --accent-ink: #0d1b26;
+      --patient: #f0a37a; --patient-bg: #3a2418; --clin: #7fbbe6; --clin-bg: #18293a;
+      --warn-bg: #3a3214; --warn-line: #8c7a2c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 20px 16px 48px; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .tag.patient { color: var(--patient); background: var(--patient-bg); }
+  .tag.clin { color: var(--clin); background: var(--clin-bg); }
+  .tag.plain { color: var(--muted); background: var(--card); border: 1px solid var(--line); }
+  h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 12px; }
+  h2 { font-size: 19px; margin: 22px 0 8px; }
+  p { margin: 0 0 12px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 0 0 14px; }
+  .note { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 12px; padding: 12px 14px; margin: 0 0 14px; }
+  .muted { color: var(--muted); font-size: 15px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .fact { border-top: 1px solid var(--line); padding: 10px 0; }
+  .fact:first-child { border-top: 0; padding-top: 0; }
+  .when { display: block; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  button { display: block; width: 100%; font: inherit; font-weight: 700; border: 0; border-radius: 12px;
+    padding: 15px 16px; margin: 10px 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button.secondary { background: var(--card); color: var(--ink); border: 1px solid var(--line); font-weight: 600; }
+  .steps { list-style: none; padding: 0; }
+  .crit { padding-left: 22px; }
+  .progress { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+// Lab 12, 3807200 Psychological Testing, Mon 2026-10-26.
+// Source of the card text: Lab Materials/Week 12/Week 12 - Role Cards.md (keep the two in step).
+const RULES = [
+  ["Tell freely", "give these to any question about the problem."],
+  ["Only if asked directly", "give these only when a question asks for exactly that."],
+  ["Only if you feel comfortable", "you feel comfortable once the clinician has done at least two of these: asked you an open question, said back what you said in their own words, asked how YOU are coping. Then bring these up yourself. Until then, say \"it's okay\"."],
+  ["Records", "if the clinician asks for one kind of record, read them that line only."]
+];
+
+const CARDS = {
+  1: { who: "34, you work in sales.",
+    opening: "\"Work has been really stressful lately. My boss isn't happy with me.\"",
+    act: "Talk fast and fidget with a pen. If asked how you feel, say \"fine\", but look tense.",
+    facts: [
+      ["Tell freely", "Your boss wants you to visit clients in Singapore and Hong Kong, and you keep finding excuses."],
+      ["Tell freely", "The problem is flying. Just thinking about a plane makes your heart race."],
+      ["Only if asked directly", "It started about three years ago and has got worse every year."],
+      ["Only if asked directly", "Every time you book a flight or get near an airport, you panic. You have cancelled three trips."],
+      ["Only if asked directly", "You know flying is very safe."],
+      ["Only if comfortable", "You missed your sister's wedding in Japan last year. You still feel ashamed."],
+      ["Record: work", "Declined two overseas assignments in the past year."],
+      ["Record: medical", "Nothing relevant."],
+      ["Record: earlier assessments", "None."]],
+    answer: "<b>MEETS the criteria for a specific phobia.</b> Marked fear of flying, triggered every time, avoided, out of proportion to the real danger, three years long, and it is costing you at work and in your family." },
+  2: { who: "41, a secondary school teacher.",
+    opening: "\"I'm not sleeping well, and I have a trip coming up.\"",
+    act: "Speak normally but sound tired. Rub your eyes now and then.",
+    facts: [
+      ["Tell freely", "You fly to Chiang Mai for a conference next month."],
+      ["Tell freely", "You are scared of flying now. Thinking about the flight makes you feel sick."],
+      ["Only if asked directly", "It started two weeks ago, after a flight with very bad turbulence. Before that you flew often and enjoyed it."],
+      ["Only if asked directly", "You have not cancelled. You still plan to take the flight."],
+      ["Only if asked directly", "You know flying is safe, but right now it feels dangerous."],
+      ["Only if comfortable", "Your teenage daughter laughed at you for being scared, and it hurt."],
+      ["Record: medical", "Doctor's note from last week: trouble sleeping after a frightening flight."],
+      ["Record: work", "Nothing relevant."],
+      ["Record: earlier assessments", "None."]],
+    answer: "<b>Does NOT meet the criteria.</b> The fear is real, but it has lasted only two weeks (the criteria usually need six months or more), and you are not avoiding the flight. This is a normal reaction to a frightening event, and it may fade on its own." },
+  3: { who: "22, a university student.",
+    opening: "\"I've had to change the way I get to university.\"",
+    act: "Speak quietly and glance at the door now and then.",
+    facts: [
+      ["Tell freely", "A pack of street dogs lives in your soi. You are scared of them."],
+      ["Tell freely", "You now take a longer way to university to avoid them."],
+      ["Only if asked directly", "This pack has chased people on motorbikes and bitten two of your neighbours this year. One went to hospital."],
+      ["Only if asked directly", "Other dogs don't bother you. You play with your cousin's dog every weekend."],
+      ["Only if asked directly", "It started about eight months ago, when the pack moved into the soi."],
+      ["Only if comfortable", "You fell off your motorbike once while they chased you. You haven't told your parents."],
+      ["Record: medical", "Emergency visit six months ago: scraped arm after a motorbike fall."],
+      ["Record: school", "Nothing relevant."],
+      ["Record: earlier assessments", "None."]],
+    answer: "<b>Does NOT meet the criteria.</b> Your fear is in proportion to the real danger: these dogs have bitten people. And it isn't triggered by dogs in general. Avoiding this pack is sensible, not a disorder." },
+  4: { who: "19, a first-year university student.",
+    opening: "\"The faculty says I need a health check before my internship, and I keep putting it off.\"",
+    act: "When needles or blood come up, go quiet, look away and hold your arm.",
+    facts: [
+      ["Tell freely", "The health check includes a blood test, and you can't make yourself go."],
+      ["Tell freely", "Needles make you feel sick and dizzy."],
+      ["Only if asked directly", "It has been like this since you were a small child."],
+      ["Only if asked directly", "Every time you see a needle, even on TV, you feel faint. You have cancelled the health check three times and skip vaccinations."],
+      ["Only if asked directly", "You know a blood test is very safe."],
+      ["Only if comfortable", "You are scared of losing your internship place, and you haven't told anyone the real reason."],
+      ["Record: medical", "Fainted during a blood test at age 15. No flu vaccines for three years."],
+      ["Record: school", "Internship health form overdue."],
+      ["Record: earlier assessments", "None."]],
+    answer: "<b>MEETS the criteria for a specific phobia.</b> Marked fear of needles since childhood, triggered every time, avoided, out of proportion to the real danger, and it now threatens your internship." },
+  5: { who: "30, an engineer.",
+    opening: "\"I turned down a job I really wanted, and I don't know why I keep doing this.\"",
+    act: "Fidget, and talk faster whenever offices or buildings come up.",
+    facts: [
+      ["Tell freely", "The new job's office was on the 25th floor."],
+      ["Tell freely", "High places make your legs shake. You feel like you are about to fall."],
+      ["Only if asked directly", "It has been like this since university, about eight years."],
+      ["Only if asked directly", "Every time you are somewhere high, it happens. You never use footbridges or glass lifts, and you chose a ground-floor flat on purpose."],
+      ["Only if asked directly", "You know the buildings are safe."],
+      ["Only if comfortable", "Your partner wants to move to a condo, and you keep arguing about it."],
+      ["Record: work", "Turned down two job offers on high floors."],
+      ["Record: medical", "Nothing relevant."],
+      ["Record: earlier assessments", "None."]],
+    answer: "<b>MEETS the criteria for a specific phobia.</b> Marked fear of heights, triggered every time, avoided, out of proportion to the real danger, eight years long, and it is costing you jobs and your relationship." },
+  6: { who: "26, an office worker.",
+    opening: "\"My friend made me come. She thinks I have a phobia.\"",
+    act: "Relaxed. Laugh a little. Speak normally.",
+    facts: [
+      ["Tell freely", "You scream when you see a cockroach. Your friend filmed you once."],
+      ["Tell freely", "You hate them. Just seeing one makes you jump."],
+      ["Only if asked directly", "You have been like this since you were small. It happens every time."],
+      ["Only if asked directly", "You ask your roommate to kill it, or spray it yourself. You don't avoid any places because of them."],
+      ["Only if asked directly", "It doesn't get in the way of anything. A minute later you have forgotten it, and you sleep and work fine."],
+      ["Only if comfortable", "You think your friend posted the video online, and you are a bit annoyed with her."],
+      ["Record: medical", "Nothing relevant."],
+      ["Record: work", "Nothing relevant."],
+      ["Record: earlier assessments", "None."]],
+    answer: "<b>Does NOT meet the criteria.</b> Strong fear, every time, for years, but it causes no real distress and doesn't get in the way of your life, and you don't avoid anything. Lots of people hate cockroaches. That alone is not a disorder." }
+};
+
+const CLIN_STEPS = [
+  ["Step 1 — Open", "<p>Start with <b>\"What brings you in today?\"</b></p><p>Use open questions, and say back what you hear in your own words. No checklist yet.</p><p>Then write your <b>first impression</b> on the lab sheet: what are they afraid of, is it a specific phobia, how sure are you?</p>"],
+  ["Step 2 — What you saw", "<p>You have been watching since they sat down. On the sheet, write one or two words for each: <b>behaviour, speech, mood</b> (what they SAY they feel) and <b>affect</b> (how they LOOK).</p>"],
+  ["Step 3 — History", "<p>Ask <b>when it started</b>, and <b>what was going on in their life</b> at the time. Write both on the sheet.</p>"],
+  ["Step 4 — Records", "<p>Ask for <b>ONE</b> kind of record: medical, work or school, or earlier assessments. Your patient reads you what it says. Write it on the sheet.</p>"],
+  ["Step 5 — Checklist", "<p>Now ask about every line, directly. Write Yes, No or Not sure on the sheet.</p><ol class=\"crit\"><li>Marked fear of one thing or situation</li><li>That thing almost always sets it off, straight away</li><li>They avoid it, or put up with it in intense fear</li><li>The fear is out of proportion to the real danger</li><li>It has lasted a long time (usually 6 months or more)</li><li>It causes real distress or gets in the way of their life</li></ol><p class=\"muted\">Simplified from the lecture's DSM slide. A real diagnosis needs every line to be Yes, and a trained clinician.</p>"],
+  ["Step 6 — Your call", "<p>On the sheet: <b>is it a specific phobia?</b> If not, which line failed? How sure are you?</p><p>Then ask your patient to <b>show you the answer</b> on their phone. Were you right? Write it down.</p><p>Last, your patient rates how comfortable they felt in Step 1 and in Step 5.</p>"]
+];
+
+const params = new URLSearchParams(location.search);
+const person = params.get("p") === "2" ? 2 : (params.get("p") === "1" ? 1 : 0);
+const order = person === 1 ? ["intro", "patient", "clinician", "done"] : ["intro", "clinician", "patient", "done"];
+const KEY = "lab12-p" + person;
+
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+let state = load();
+if (!state) {
+  const pool = person === 1 ? [1, 2, 3] : [4, 5, 6];
+  state = { screen: 0, step: 0, card: pool[Math.floor(Math.random() * pool.length)] };
+}
+const forced = parseInt(params.get("card"), 10);
+if (CARDS[forced]) state.card = forced;
+save();
+
+const app = document.getElementById("app");
+function go(screen) { state.screen = screen; state.step = 0; save(); render(); window.scrollTo(0, 0); }
+function round(role) { return (person === 1) === (role === "patient") ? 1 : 2; }
+
+function render() {
+  if (!person) {
+    app.innerHTML = '<span class="tag plain">Lab 12</span><h1>Scan your own code</h1><p>Use the QR code for Person 1 or Person 2 on your lab sheet.</p>';
+    return;
+  }
+  const kind = order[state.screen];
+  const other = person === 1 ? 2 : 1;
+  if (kind === "intro") {
+    const first = order[1] === "patient" ? "the patient" : "the clinician";
+    const second = order[2] === "patient" ? "the patient" : "the clinician";
+    app.innerHTML = `<span class="tag plain">Lab 12 · The Interview</span>
+      <h1>You are Person ${person}</h1>
+      <div class="box"><p><b>First half:</b> you are ${first}.</p><p style="margin:0"><b>After halftime:</b> you are ${second}.</p></div>
+      <p>Keep your screen to yourself. Person ${other} has a different screen.</p>
+      <p class="muted">Your answers go on the lab sheet, not on this phone.</p>
+      <button id="next">I'm ready to be ${first}</button>`;
+    document.getElementById("next").onclick = () => go(1);
+  } else if (kind === "patient") {
+    const c = CARDS[state.card];
+    const last = state.screen === 2;
+    app.innerHTML = `<span class="tag patient">Round ${round("patient")} · You are the patient</span>
+      <h1>Patient Card ${state.card}</h1>
+      <div class="note">Read this for two minutes. Never show this screen to your partner until Step 6.</div>
+      <div class="box"><p><b>Who you are:</b> ${c.who}</p>
+        <p><b>Your opening line:</b> ${c.opening} Say only this until you are asked more.</p>
+        <p style="margin:0"><b>How to act:</b> ${c.act}</p></div>
+      <h2>How to give the facts</h2>
+      <ul>${RULES.map(r => `<li><b>${r[0]}:</b> ${r[1]}</li>`).join("")}</ul>
+      <h2>Your facts</h2>
+      <div class="box">${c.facts.map(f => `<div class="fact"><span class="when">${f[0]}</span>${f[1]}</div>`).join("")}</div>
+      <h2>The answer</h2>
+      <p class="muted">Only at Step 6, when your clinician has made their call.</p>
+      <button class="secondary" id="reveal">Show the answer</button>
+      <div class="box hidden" id="answer">${c.answer}</div>
+      <h2>${last ? "All done?" : "Halftime"}</h2>
+      <p class="muted">${last ? "When your clinician has finished Step 6." : "Wait until your instructor calls halftime."}</p>
+      <button id="next">${last ? "Finish" : "Next: be the clinician"}</button>`;
+    document.getElementById("reveal").onclick = () => {
+      const a = document.getElementById("answer");
+      a.classList.toggle("hidden");
+      document.getElementById("reveal").textContent = a.classList.contains("hidden") ? "Show the answer" : "Hide the answer";
+    };
+    document.getElementById("next").onclick = () => go(state.screen + 1);
+  } else if (kind === "clinician") {
+    const s = state.step;
+    const last = state.screen === 2;
+    const [title, body] = CLIN_STEPS[s];
+    const intro = s === 0 ? `<div class="box">Your partner has a patient card. Find out what is wrong, and whether it meets the criteria for a <b>specific phobia</b>. Go through the six steps in order, and write your answers on the lab sheet, in the Round ${round("clinician")} column.</div>` : "";
+    const done = s === CLIN_STEPS.length - 1;
+    app.innerHTML = `<span class="tag clin">Round ${round("clinician")} · You are the clinician</span>
+      <div class="progress">Step ${s + 1} of ${CLIN_STEPS.length}</div>
+      <h1>${title}</h1>${intro}<div class="box">${body}</div>
+      ${done ? `<p class="muted">${last ? "That's your last step." : "Then wait until your instructor calls halftime."}</p>` : ""}
+      <button id="next">${done ? (last ? "Finish" : "Next: be the patient") : "Next step"}</button>
+      ${s > 0 ? '<button class="secondary" id="back">Back</button>' : ""}`;
+    document.getElementById("next").onclick = () => {
+      if (!done) { state.step = s + 1; save(); render(); window.scrollTo(0, 0); } else { go(state.screen + 1); }
+    };
+    if (s > 0) document.getElementById("back").onclick = () => { state.step = s - 1; save(); render(); window.scrollTo(0, 0); };
+  } else {
+    app.innerHTML = `<span class="tag plain">Lab 12</span><h1>Done</h1>
+      <p>Go to <b>Part 3</b> on your lab sheet and answer it with your partner. Then submit the sheet.</p>`;
+  }
+}
+render();
+</script>
+</body>
+</html>
