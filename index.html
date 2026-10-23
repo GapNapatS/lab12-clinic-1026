@@ -147,14 +147,6 @@ const CARDS = {
     answer: "<b>Does NOT meet the criteria.</b> Strong fear, every time, for years, but it causes no real distress and doesn't get in the way of your life, and you don't avoid anything. Lots of people hate cockroaches. That alone is not a disorder." }
 };
 
-const CLIN_STEPS = [
-  ["Step 1 — Open", "<p>Start with <b>\"What brings you in today?\"</b></p><p>Use open questions, and say back what you hear in your own words. No checklist yet.</p><p>Then write your <b>first impression</b> on the lab sheet: what are they afraid of, is it a specific phobia, how sure are you?</p>"],
-  ["Step 2 — What you saw", "<p>You have been watching since they sat down. On the sheet, write one or two words for each: <b>behaviour, speech, mood</b> (what they SAY they feel) and <b>affect</b> (how they LOOK).</p>"],
-  ["Step 3 — History", "<p>Ask <b>when it started</b>, and <b>what was going on in their life</b> at the time. Write both on the sheet.</p>"],
-  ["Step 4 — Records", "<p>Ask for <b>ONE</b> kind of record: medical, work or school, or earlier assessments. Your patient reads you what it says. Write it on the sheet.</p>"],
-  ["Step 5 — Checklist", "<p>Now ask about every line, directly. Write Yes, No or Not sure on the sheet.</p><ol class=\"crit\"><li>Marked fear of one thing or situation</li><li>That thing almost always sets it off, straight away</li><li>They avoid it, or put up with it in intense fear</li><li>The fear is out of proportion to the real danger</li><li>It has lasted a long time (usually 6 months or more)</li><li>It causes real distress or gets in the way of their life</li></ol><p class=\"muted\">Simplified from the lecture's DSM slide. A real diagnosis needs every line to be Yes, and a trained clinician.</p>"],
-  ["Step 6 — Your call", "<p>On the sheet: <b>is it a specific phobia?</b> If not, which line failed? How sure are you?</p><p>Then ask your patient to <b>show you the answer</b> on their phone. Were you right? Write it down.</p><p>Last, your patient rates how comfortable they felt in Step 1 and in Step 5.</p>"]
-];
 
 const params = new URLSearchParams(location.search);
 const person = params.get("p") === "2" ? 2 : (params.get("p") === "1" ? 1 : 0);
@@ -191,7 +183,7 @@ function render() {
       <h1>You are Person ${person}</h1>
       <div class="box"><p><b>First half:</b> you are ${first}.</p><p style="margin:0"><b>After halftime:</b> you are ${second}.</p></div>
       <p>Keep your screen to yourself. Person ${other} has a different screen.</p>
-      <p class="muted">Your answers go on the lab sheet, not on this phone.</p>
+      <p class="muted">As the patient, you use this phone. As the clinician, you use the lab sheet.</p>
       <button id="next">I'm ready to be ${first}</button>`;
     document.getElementById("next").onclick = () => go(1);
   } else if (kind === "patient") {
@@ -221,21 +213,16 @@ function render() {
     };
     document.getElementById("next").onclick = () => go(state.screen + 1);
   } else if (kind === "clinician") {
-    const s = state.step;
     const last = state.screen === 2;
-    const [title, body] = CLIN_STEPS[s];
-    const intro = s === 0 ? `<div class="box">Your partner has a patient card. Find out what is wrong, and whether it meets the criteria for a <b>specific phobia</b>. Go through the six steps in order, and write your answers on the lab sheet, in the Round ${round("clinician")} column.</div>` : "";
-    const done = s === CLIN_STEPS.length - 1;
     app.innerHTML = `<span class="tag clin">Round ${round("clinician")} · You are the clinician</span>
-      <div class="progress">Step ${s + 1} of ${CLIN_STEPS.length}</div>
-      <h1>${title}</h1>${intro}<div class="box">${body}</div>
-      ${done ? `<p class="muted">${last ? "That's your last step." : "Then wait until your instructor calls halftime."}</p>` : ""}
-      <button id="next">${done ? (last ? "Finish" : "Next: be the patient") : "Next step"}</button>
-      ${s > 0 ? '<button class="secondary" id="back">Back</button>' : ""}`;
-    document.getElementById("next").onclick = () => {
-      if (!done) { state.step = s + 1; save(); render(); window.scrollTo(0, 0); } else { go(state.screen + 1); }
-    };
-    if (s > 0) document.getElementById("back").onclick = () => { state.step = s - 1; save(); render(); window.scrollTo(0, 0); };
+      <h1>Use your lab sheet</h1>
+      <div class="box"><p>Your partner has a patient card. Find out what is wrong, and whether it meets the criteria for a <b>specific phobia</b>.</p>
+        <p style="margin:0">Work from <b>Part 2</b> of the lab sheet, Steps 1 to 6 in order, and write in the <b>Round ${round("clinician")}</b> column.</p></div>
+      <p class="muted">You can put this phone down.</p>
+      <h2>${last ? "All done?" : "Halftime"}</h2>
+      <p class="muted">${last ? "When you have finished Step 6." : "When you have finished Step 6, wait until your instructor calls halftime."}</p>
+      <button id="next">${last ? "Finish" : "Next: be the patient"}</button>`;
+    document.getElementById("next").onclick = () => go(state.screen + 1);
   } else {
     app.innerHTML = `<span class="tag plain">Lab 12</span><h1>Done</h1>
       <p>Go to <b>Part 3</b> on your lab sheet and answer it with your partner. Then submit the sheet.</p>`;
